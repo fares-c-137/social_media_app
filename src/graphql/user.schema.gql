@@ -1,0 +1,19 @@
+# user.schema.gql: separated SDL for user-specific types/extensions
+
+extend type Query {
+  # Example query with explicit non-nullables
+  userById(id: ID!): UserPayload!
+}
+
+extend type Mutation {
+  # Example mutation
+  upsertUser(
+    id: ID
+    firstName: String!
+    lastName: String!
+    email: String
+    role: RoleEnum = user
+    gender: GenderEnum
+    description: String = ""
+  ): UserPayload!
+}

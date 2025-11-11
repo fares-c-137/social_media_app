@@ -1,0 +1,87 @@
+# Root schema: queries, mutations, and shared enums/inputs
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# --- Enums ---
+enum GenderEnum {
+  male
+  female
+}
+
+enum RoleEnum {
+  user
+  admin
+}
+
+# Used for filtering/sorting user queries
+enum UserSearchField {
+  NAME
+  EMAIL
+  ROLE
+  GENDER
+}
+
+# --- Core Types ---
+# Minimal example per user request: name & description are Non-Null
+type User {
+  id: ID!
+  name: String!          # NonNull (firstName + lastName)
+  description: String!   # NonNull (maps to bio or empty string)
+  email: String
+  role: RoleEnum!
+  gender: GenderEnum
+}
+
+# Uniform response wrapper (optional but recommended)
+type Meta {
+  success: Boolean!
+  message: String
+  errorCode: String
+}
+
+type UserListPayload {
+  meta: Meta!
+  total: Int!
+  items: [User!]!
+}
+
+type UserPayload {
+  meta: Meta!
+  item: User
+}
+
+# --- Inputs & Args ---
+input PaginationInput {
+  page: Int = 1
+  limit: Int = 20
+}
+
+# Required vs Optional vs Enum examples
+input UserSearchInput {
+  # required arg example
+  keyword: String!
+  # optional args
+  field: UserSearchField
+  role: RoleEnum
+  gender: GenderEnum
+}
+
+# --- Root Operations ---
+type Query {
+  # Get ALL users (GraphQLList)
+  users(pagination: PaginationInput): UserListPayload!
+
+  # Search single user by a required keyword; demonstrates enum args
+  searchUser(args: UserSearchInput!): UserPayload!
+
+  # Demonstrates selecting multiple fields and aliasing in a single request
+  demoUserSelection: UserPayload!
+}
+
+type Mutation {
+  # Mutation vs Query: use for state changes
+  updateUserDescription(id: ID!, description: String!): UserPayload!
+}
